@@ -1,0 +1,1 @@
+"rvm use default" needs to be run EVERY SINGLE TIME the vm is launched, for some reason

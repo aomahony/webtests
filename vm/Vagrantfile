@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+   config.vm.box = "precise64"
+
+   config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+
+   config.vm.network :forwarded_port, guest: 3000, host: 3000 #http
+   config.vm.network :forwarded_port, guest: 3001, host: 3001 #https
+   config.vm.network :forwarded_port, guest: 80, host: 8088 #web
+   config.vm.network :forwarded_port, guest: 5432, host: 5532 #postgres
+
+   config.vm.synced_folder "../source/webtests", "/home/vagrant/webtests"
+
+   config.vm.provision :chef_solo do |chef|
+      chef.cookbooks_path = "chef/cookbooks"
+
+      # ensure apt is updated
+      chef.add_recipe "apt"
+      chef.add_recipe "openssl"
+      chef.add_recipe "git"
+      chef.add_recipe "postgresql"
+      chef.add_recipe "postgresql::server"
+      chef.add_recipe "postgresql::contrib"
+      # build-essential is required for building gems from C
+      chef.add_recipe "build-essential"
+      # install rvm and make it play nice with vagrant-installed ruby
+      chef.add_recipe "rvm::vagrant"
+      chef.add_recipe "rvm::system"
+      chef.add_recipe "nodejs::install_from_package"
+      chef.add_recipe "imagemagick"
+
+      chef.json = {
+         :postgresql => {
+            :version => '9.2',
+            :ssl => false,
+            :users => [
+               {
+                  :username => 'caligula',
+                  :password => '#2margcodd58',
+                  :superuser => true,
+                  :login => true
+               }
+            ]
+         },
+         :rvm => {
+            :rubies => ['2.0.0'],
+            :default_ruby => '2.0.0',
+            :global_gems => [
+               {:name => 'bundler'},
+               {:name => 'rake', :version => '0.9.6'},
+               {:name => 'rails', :version => '4.0.1'},
+               {:name => 'mailtrap'}
+            ],
+            :vagrant => {
+               'system_chef_solo' => '/opt/vagrant_ruby/bin/chef-solo'
+            }
+         }
+      }
+   end
+end

@@ -1,0 +1,23 @@
+common: &common
+   adapter: postgresql
+   encoding: unicode
+   host: localhost
+   username: caligula
+   pool: 5
+   template: template1
+
+development:
+   <<: *common
+   database: webtests_development
+   password: '#2margcodd58'
+
+test:
+   <<: *common
+   database: webtests_test
+   password: '#2margcodd58'
+   min_messages: warning
+
+production:
+   <<: *common
+   database: webtests_production
+   password: '#2margcodd58'

@@ -1,0 +1,15 @@
+%div.cart
+
+   %div.itemsView
+
+   %div#cart-view
+   %div.cartItems   
+
+%script#item-template{:type => "text/template"}
+   %a.item{:href => "#", :data => {:itemType => "{%- itemType %}", :guid => "{%- guid %}"}} Some Fabric
+
+%script#cart-template{:type => "text/template"}
+   %a{:href => "#"} My Cart ({%- totalQuantity %})
+
+%script#cart-item-template{:type => "text/template"}
+   %a.cart-item{:href => "#", :data => {:id => "{%- id %}"}} {%- itemType %} - {%- guid %}

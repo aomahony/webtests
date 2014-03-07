@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require application_layout
 //= require underscore
 //= require backbone
 //= require_tree .

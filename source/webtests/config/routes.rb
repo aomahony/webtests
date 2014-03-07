@@ -1,4 +1,6 @@
 Webtests::Application.routes.draw do
+  get "cart/get"
+  get "cart/update"
   get "landing/index"
   get "default/index"
   # The priority is based upon order of creation: first created -> highest priority.
@@ -6,6 +8,10 @@ Webtests::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
    root 'landing#index'
+
+   get 'cart/view' => 'cart#index'
+   get 'cart' => 'cart#get'
+   put 'cart' => 'cart#update'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  type: 
+  guid: MyString
+  cart_id: 
+
+two:
+  type: 
+  guid: MyString
+  cart_id: 

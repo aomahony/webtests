@@ -13,6 +13,8 @@
 //= require jquery
 //= require jquery_ujs
 //= require application_layout
-//= require underscore
-//= require backbone
+//= require underscore-full
+//= require backbone-full
+//= require backbone.marionette
+//= require mobile_carousel_classes
 //= require_tree .

@@ -3,13 +3,15 @@
    %div.itemsView
 
    %div#cart-view
-   %div.cartItems   
+      %div.error   
+      %div.cart-count
+   %div.cartItems
 
 %script#item-template{:type => "text/template"}
-   %a.item{:href => "#", :data => {:itemType => "{%- itemType %}", :guid => "{%- guid %}"}} Some Fabric
+   %a.item{:href => "#", :data => {:itemType => "{%- itemType %}", :guid => "{%- guid %}"}} {%- name %}
 
 %script#cart-template{:type => "text/template"}
    %a{:href => "#"} My Cart ({%- totalQuantity %})
 
 %script#cart-item-template{:type => "text/template"}
-   %a.cart-item{:href => "#", :data => {:id => "{%- id %}"}} {%- itemType %} - {%- guid %}
+   %a.cart-item{:href => "#"} {%- name %} - {%- itemType %} - {%- guid %}

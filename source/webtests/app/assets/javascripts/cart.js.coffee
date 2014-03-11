@@ -2,52 +2,41 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
-gItems = [{"itemType": "fabric", "guid": "483983hefuy9"}, {"itemType": "swatch", "guid": "88ad0h89ash9udasb9"}];
+#= require mobile_carousel_classes
 
 $ ->
-
-   class ItemModel extends Backbone.Model
+   class ItemModel extends @.MobileCarouselModel
 
       defaults:
          itemType: ""
          guid: ""
+         name: ""
 
-      initialize: (item) ->
-         this.set("itemType", item.itemType)
-         this.set("guid", item.guid)
-
-   class CartItemCollection extends Backbone.Collection
+   class CartItemCollection extends @.MobileCarouselCollection
       model: ItemModel
       url: "/cart"
 
-      saveAll: ->
-         options = {
-            success: (models, response, xhr) =>
-               @.reset(models)
-            error: (model, response, options) =>
-               console.log("Error")
-         }
-         return Backbone.sync('update', @, options)
+   # !!! NOTE!!  DO NOT USE THIS CLASS DIRECTLY
+   # Due to a CoffeeScript compilation bug, placing this class
+   # within the singleton class makes it inherit from itself,
+   # so we can't do that yet
 
-      fetch: ->
-         options = {
-            reset: true
-            error: (model, response, options) =>
-               console.log ("FETCH ERROR")
-         }
-         return Backbone.Collection.prototype.fetch.call(@, options)
-
-   class CartModel extends Backbone.Model
-
+   class CartModel extends @.MobileCarouselModel
       initialize: ->
          @items = new CartItemCollection
+
+         @.listenTo(@items, "sync_error", (object, event) =>
+            $(document).trigger("cart:error", "Error syncing cart with server")
+         )
+         @.listenTo(@items, "success", (object, event) =>
+            $(document).trigger("cart:reset"))
 
       getTotalQuantity: ->
          return @items.length
 
-      addItem: (type, guid, quantity) ->
+      addItem: (type, guid, name, quantity) ->
          for i in [0...quantity]
-            @items.add({"itemType": type, "guid": guid})
+            @items.add({"itemType": type, "guid": guid, "name": name})
          @saveAll()
 
       removeItem: (id) ->
@@ -60,53 +49,56 @@ $ ->
       fetch: ->
          @items.fetch()
 
-   class CartView extends Backbone.View
+   class CartModelSingleton
+      instance = null
+
+      @get: ->
+         if null == instance
+            instance = new CartModel
+         instance
+
+   class ErrorView extends @.MobileCarouselView
+      initialize: (element) ->
+         @setElement(element)
+
+      SetErrorEvent: (eventName) ->
+         $(document).on(eventName, (event, message) => @.render(message))
+      SetSuccessEvent: (eventName) ->
+         $(document).on(eventName, => @.render(""))
+
+      render: (message) ->
+         @$el.html(message)
+
+   class CartView extends @.MobileCarouselView
       el: ($ "#cart-view")
       
       template: _.template(($ "#cart-template").html())
 
       initialize: ->
-         @listenTo(gCart.items, "reset", this.render)
+         @listenTo(gCart.items, "reset", @.render)
+         errorView = new ErrorView(@.$('div.error'))
+         errorView.SetErrorEvent("cart:error")
+         errorView.SetSuccessEvent("cart:reset")
 
       render: ->
-         @$el.html(@template({totalQuantity: gCart.getTotalQuantity()}))
+         @.$('div.cart-count').html(@template({totalQuantity: gCart.getTotalQuantity()}))
          @
 
-   class CartItemView extends Backbone.View
+   class CartItemView extends @.MobileCarouselItemView
       tagName: "div"
       template: _.template(($ "#cart-item-template").html())
 
       events:
          "click a.cart-item": "removeItem"
 
-      initialize: ->
-
       removeItem: ->
-         gCart.removeItem(this.model.get("id"))
+         gCart.removeItem(@model.get("id"))
 
-      render: ->
-         @$el.html(@template({
-                                 itemType: this.model.get("itemType"), 
-                                 guid: this.model.get("guid"),
-                                 id: this.model.get("id")
-                             }));
-         @
-
-   class CartItemsView extends Backbone.View
+   class CartItemsView extends @.MobileCarouselCollectionView
       el: ($ "div.cartItems")
+      itemView: CartItemView
 
-      initialize: ->
-         @listenTo(gCart.items, "reset", this.render)
-
-      render: ->
-         @$el.empty();
-         gCart.items.each((model) =>
-            cartItemView = new CartItemView({model: model});
-            @$el.append(cartItemView.render().el)
-         )
-         @
-
-   class ItemView extends Backbone.View
+   class ItemView extends @.MobileCarouselItemView
       tagName: "div"
       template: _.template(($ "#item-template").html())
 
@@ -114,38 +106,23 @@ $ ->
          "click a.item": "addItemToCart"
 
       addItemToCart: ->
-         gCart.addItem(this.model.get("itemType"), this.model.get("guid"), 1)
+         gCart.addItem(@model.get("itemType"), @model.get("guid"), @model.get("name"), 10)
 
-      render: ->
-         @$el.html(@template({itemType: this.model.get("itemType"), guid: this.model.get("guid")}))
-         @
-
-   class ItemCollection extends Backbone.Collection
+   class ItemCollection extends @.MobileCarouselCollection
       model: ItemModel
+      url: "/cartitems"
 
-      initialize: (itemsJSON) ->
-         $.each(itemsJSON, (k, v) =>
-            this.add(new ItemModel(v))
-         )
-
-   class ItemsView extends Backbone.View
+   class ItemsView extends @.MobileCarouselCollectionView
       el: ($ "div.itemsView")
+      itemView: ItemView
 
       initialize: ->
-         @collection = new ItemCollection(gItems)
-         @render()
+         @collection.fetch()
 
-      render: ->
-         @$el.empty()
-         @collection.each((model) =>
-            itemView = new ItemView({model: model});
-            @$el.append(itemView.render().el)
-         )      
-         @
-
-   gCart = new CartModel
+   gCart = CartModelSingleton.get()
    gCartView = new CartView
-   gCartItemsView = new CartItemsView
-   gItemsView = new ItemsView
+   gCartItemsView = new CartItemsView({collection: gCart.items})
+   gItemsView = new ItemsView({collection: new ItemCollection, el: ($ "div.itemsView")})
+   #errorView = new ErrorView
 
    gCart.fetch()  

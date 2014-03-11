@@ -7,3 +7,19 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 cart = Cart.create
+
+items = Item.create([{
+                        name: "Soft Fabric", 
+                        itemType: "fabric", 
+                        guid: "udsa89dyas89dash9"
+                     },
+                     {
+                        name: "Soft Fabric Swatch",
+                        itemType: "swatch",
+                        guid: "dsa79ydas97dash9u"
+                     },
+                     {
+                        name: "Pink and Gray Drapes",
+                        itemType: "product",
+                        guid: "dsay79days79dagh9"
+                     }]);

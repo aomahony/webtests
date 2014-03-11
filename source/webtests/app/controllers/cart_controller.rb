@@ -3,6 +3,10 @@ class CartController < ApplicationController
    def index
    end
 
+   def get_all_items
+      render :json => Item.all
+   end
+
    def get
       cart = Cart.getCart
       render :json => cart.cart_items

@@ -10,8 +10,9 @@ Webtests::Application.routes.draw do
    root 'landing#index'
 
    get 'cart/view' => 'cart#index'
+   get 'cartitems' => 'cart#get_all_items'
    get 'cart' => 'cart#get'
-   put 'cart' => 'cart#update'
+   post 'cart' => 'cart#update'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

@@ -1,4 +1,4 @@
-$(function() {
+$ ->
    _.templateSettings = { 
       interpolate: /\{\{(.+?)\}\}/g,
       evaluate: /\{%([\s\S]+?)%\}/g,
@@ -6,5 +6,3 @@ $(function() {
    };
 
    console.log("gInit called");
-   return true;
-});

@@ -9,9 +9,3 @@
       %div.error   
       %div.cart-count
    %div.cartItems
-
-%script#item-template{:type => "text/template"}
-   %a.item{:href => "#", :data => {:itemType => "{%- itemType %}", :guid => "{%- guid %}"}} {%- name %}
-
-%script#cart-item-template{:type => "text/template"}
-   %a.cart-item{:href => "#"} {%- name %} - {%- itemType %} - {%- guid %}

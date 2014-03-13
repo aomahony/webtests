@@ -4,15 +4,24 @@
       %title Webtests
       =stylesheet_link_tag "application", media: "all"
       =javascript_include_tag "application"
-      =yield :header
       =csrf_meta_tags
    %body
-      %div#cart-view
-         %div.error   
-         %div.cart-count
+      %div.header
+         %div#cart-view
+            %div.error   
+            %div.cart-count
 
-      =yield
+      %div.content
+         =#yield
+
+      %div.footer
 
       %script#cart-template{:type => "text/template"}
-         %a{:href => "#"} My Cart ({%- totalQuantity %})      
+         %a{:href => "#cart"} My Cart ({%- totalQuantity %})      
+
+      %script#item-template{:type => "text/template"}
+         %a.item{:data => {:itemType => "{%- itemType %}", :guid => "{%- guid %}"}} {%- name %}
+
+      %script#cart-item-template{:type => "text/template"}
+         %a.cart-item {%- name %} - {%- itemType %} - {%- guid %}
 

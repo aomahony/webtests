@@ -16,3 +16,4 @@
 //= require backbone-full
 //= require backbone.marionette
 //= require_tree ./global
+//= require mobilecarousel

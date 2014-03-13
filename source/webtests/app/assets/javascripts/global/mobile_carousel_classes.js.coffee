@@ -2,7 +2,9 @@ $ ->
    # Everything has to be added to the global namespace
    # Hence, the '@' prefix
 
-   class @.MobileCarouselCollection extends Backbone.Collection
+   window.MobileCarousel or= {}
+
+   window.MobileCarousel.MobileCarouselCollection = class MobileCarouselCollection extends Backbone.Collection
 
       initialize: ->
          @name = "_collection"
@@ -11,6 +13,9 @@ $ ->
       setName: (name) ->
          @name = name
 
+      # We need to send a JSON hash to the server
+      # as some servers (Rails, who knows about ASP) will automatically convert
+      # a non-hash value into a hash for presentation to the handler
       toJSON: (options) ->
          returnArray = {}
          returnArray[@name] = this.map((model) -> return model.toJSON(options))
@@ -26,13 +31,13 @@ $ ->
          options = {
             success: (models, response, xhr) =>
                @.reset(models)
-               @.trigger('sync_success', @)
+               @.trigger('collection:sync_success', @)
             error: (model, response, options) =>
                @.reset(@previousModels)
 
                # For some reason, sometimes the "error" event isn't propagated all the time
                # So I'm just triggering my own
-               @.trigger('sync_error', @)
+               @.trigger('collection:sync_error', @)
          }
 
          # We need to send a "POST" instead of "PUT"
@@ -45,32 +50,33 @@ $ ->
          options = {
             reset: true
             success: (models, response, xhr) =>
-               @.trigger('sync_syccess', @)
+               @.trigger('collection:sync_success', @)
             error: (model, response, options) =>
                @.reset(@previousModels)
 
                # For some reason, sometimes the "error" event isn't propagated all the time
                # So I'm just triggering my own
-               @.trigger('sync_error', @)
+               @.trigger('collection:sync_error', @)
          }
          return Backbone.Collection.prototype.fetch.call(@, options)
 
-   class @.MobileCarouselModel extends Backbone.Model
+   window.MobileCarousel.MobileCarouselModel = class MobileCarouselModel extends Backbone.Model
 
-   class @.MobileCarouselView extends Backbone.View
+   window.MobileCarousel.MobileCarouselView = class MobileCarouselView extends Backbone.View
 
-   class @.MobileCarouselItemView extends Backbone.Marionette.ItemView
+   window.MobileCarousel.MobileCarouselItemView = class MobileCarouselItemView extends Backbone.Marionette.ItemView
 
-   class @.MobileCarouselCollectionView extends Backbone.Marionette.CollectionView
-
+   window.MobileCarousel.MobileCarouselCollectionView = class MobileCarouselCollectionView extends Backbone.Marionette.CollectionView
       constructor: (options) ->
          Backbone.Marionette.CollectionView.prototype.constructor.apply(this, arguments);
+
+         options or= {}
 
          if (false == options.unbindAddRemove? or true == options.unbindAddRemove)
             @.stopListening(@collection, "add")
             @.stopListening(@collection, "remove")
 
-   class @.ItemModel extends @.MobileCarouselModel
+   window.MobileCarousel.ItemModel = class ItemModel extends MobileCarousel.MobileCarouselModel
       defaults:
          itemType: ""
          guid: ""

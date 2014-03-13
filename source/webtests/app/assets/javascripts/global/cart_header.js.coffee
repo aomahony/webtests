@@ -2,11 +2,10 @@
 
 $ ->
    
-   class TempModel extends @.ItemModel
+   window.Cart or= {}
 
-
-   class CartItemCollection extends @.MobileCarouselCollection
-      model: TempModel
+   class CartItemCollection extends MobileCarousel.MobileCarouselCollection
+      model: MobileCarousel.ItemModel
       url: "/cart"
 
    # !!! NOTE!!  DO NOT USE THIS CLASS DIRECTLY
@@ -14,46 +13,55 @@ $ ->
    # within the singleton class makes it inherit from itself,
    # so we can't do that yet
 
-   class CartModel extends @.MobileCarouselModel
-      initialize: ->
-         @items = new CartItemCollection
-         @items.setName("cart")
+   window.Cart.CartModelSingleton = class CartModelSingleton
+      class CartModel extends MobileCarousel.MobileCarouselModel
+         initialize: ->
+            @items = new CartItemCollection
+            @items.setName("cart")
 
-         @.listenTo(@items, "sync_error", (object, event) =>
-            $(document).trigger("cart:error", "Error syncing cart with server")
-         )
-         @.listenTo(@items, "sync_success", (object, event) =>
-            $(document).trigger("cart:reset"))
+            @.listenTo(@items, "collection:sync_error", (object, event) =>
+               $(document).trigger("cart:error", "Error syncing cart with server")
+            )
+            @.listenTo(@items, "collection:sync_success", (object, event) =>
+               $(document).trigger("cart:reset")
+            )
 
-      getTotalQuantity: ->
-         return @items.length
+         getTotalQuantity: ->
+            return @items.length
 
-      addItem: (type, guid, quantity) ->
-         for i in [0...quantity]
-            @items.add({"itemType": type, "guid": guid})
-         @saveAll()
+         addItem: (type, guid, quantity) ->
+            for i in [0...quantity]
+               @items.add({"itemType": type, "guid": guid})
+            @saveAll()
 
-      removeItem: (id) ->
-         @items.remove(@items.get(id))
-         @saveAll()
+         removeItem: (id) ->
+            @items.remove(@items.get(id))
+            @saveAll()
 
-      saveAll: ->
-         @items.saveAll()
+         saveAll: ->
+            @items.saveAll()
 
-      fetch: ->
-         @items.fetch()
+         fetch: ->
+            @items.fetch()
 
-   class @CartModelSingleton
-      instance = null
+      instance = new CartModel
 
-      @get: ->
-         if null == instance
-            instance = new CartModel
-         instance
+      @getTotalQuantity: ->
+         instance.getTotalQuantity()
 
-   localCartModelSingleton = @CartModelSingleton
+      @addItem: (type, guid, quantity) ->
+         instance.addItem(type, guid, quantity)
 
-   class ErrorView extends @.MobileCarouselView
+      @removeItem: (id) ->
+         instance.removeItem(id)
+
+      @fetch: ->
+         instance.fetch()
+
+      @getItems: ->
+         instance.items
+
+   class ErrorView extends MobileCarousel.MobileCarouselView
       initialize: (element) ->
          @setElement(element)
       SetErrorEvent: (eventName) ->
@@ -63,21 +71,23 @@ $ ->
       render: (message) ->
          @$el.html(message)
 
-   class CartView extends @.MobileCarouselView
+   window.Views or= {}
+
+   window.Views.CartHeaderView = class CartHeaderView extends MobileCarousel.MobileCarouselView
       el: ($ "#cart-view")
       
       template: _.template(($ "#cart-template").html())
 
       initialize: ->
-         @listenTo(localCartModelSingleton.get().items, "reset", @.render)
+         $(document).on("cart:reset", => @.render())
 
          errorView = new ErrorView(@.$('div.error'))
          errorView.SetErrorEvent("cart:error")
          errorView.SetSuccessEvent("cart:reset")
 
       render: ->
-         @.$('div.cart-count').html(@template({totalQuantity: localCartModelSingleton.get().getTotalQuantity()}))
-         @
+         @.$('div.cart-count').html(@template({totalQuantity: Cart.CartModelSingleton.getTotalQuantity()}))
+         @ 
 
-   gCartView = new CartView
-   localCartModelSingleton.get().fetch()  
+      update: ->
+         Cart.CartModelSingleton.fetch()

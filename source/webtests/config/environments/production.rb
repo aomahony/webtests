@@ -62,7 +62,7 @@ Webtests::Application.configure do
   # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
   # config.assets.precompile += %w( search.js )
 
-  config.assets.precompile += %w( *.jpg *.jpeg *.png *.gif custom.css bootstrap-dropdown.js jquery_ujs.js jquery.stellar.min.js waypoints.min.js jquery.easing.1.3.js )
+  config.assets.precompile += %w( *.jpg *.jpeg *.png *.gif custom.css bootstrap-dropdown.js jquery_ujs.js jquery.stellar.min.js waypoints.min.js jquery.easing.1.3.js cart.js)
 
 
   # Ignore bad email addresses and do not raise email delivery errors.

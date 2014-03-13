@@ -17,7 +17,7 @@ class CartController < ApplicationController
 
       cartItems = cart.cart_items
 
-      items = if nil == params[:_json] then [] else params[:_json] end
+      items = if nil == params[:cart] then [] else params[:cart] end
  
       newArray = items.select{|hash| true == hash.has_key?("id")}.map {|hash| hash['id']}
       existingArray = cartItems.to_a.map(&:serializable_hash).map {|hash| hash['id']}

@@ -8,6 +8,7 @@ class Cart < ActiveRecord::Base
    def addItem(item)
       cartItem = CartItem.new
       cartItem.cart_id = self.id
+      item['name'] = Item.find_by(:guid => item['guid']).name
       cartItem.update_attributes(item)
    end
 

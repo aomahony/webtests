@@ -3,8 +3,18 @@ $ ->
    # Hence, the '@' prefix
 
    class @.MobileCarouselCollection extends Backbone.Collection
+
       initialize: ->
-         @.previousModels = []
+         @name = "_collection"
+         @previousModels = []
+
+      setName: (name) ->
+         @name = name
+
+      toJSON: (options) ->
+         returnArray = {}
+         returnArray[@name] = this.map((model) -> return model.toJSON(options))
+         return returnArray
 
       reset: (models, options) ->
          #These models have been completely validated and are in sync with the server
@@ -16,7 +26,7 @@ $ ->
          options = {
             success: (models, response, xhr) =>
                @.reset(models)
-               @.trigger('success', @)
+               @.trigger('sync_success', @)
             error: (model, response, options) =>
                @.reset(@previousModels)
 
@@ -34,6 +44,8 @@ $ ->
       fetch: ->
          options = {
             reset: true
+            success: (models, response, xhr) =>
+               @.trigger('sync_syccess', @)
             error: (model, response, options) =>
                @.reset(@previousModels)
 
@@ -57,3 +69,9 @@ $ ->
          if (false == options.unbindAddRemove? or true == options.unbindAddRemove)
             @.stopListening(@collection, "add")
             @.stopListening(@collection, "remove")
+
+   class @.ItemModel extends @.MobileCarouselModel
+      defaults:
+         itemType: ""
+         guid: ""
+         name: ""

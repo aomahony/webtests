@@ -10,9 +10,4 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require jquery
-//= require jquery_ujs
-//= require underscore-full
-//= require backbone-full
-//= require backbone.marionette
-//= require_tree ./global
+//= require_tree ./cart

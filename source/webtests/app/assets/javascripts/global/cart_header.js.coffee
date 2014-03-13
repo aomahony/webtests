@@ -62,6 +62,10 @@ $ ->
          instance.items
 
    class ErrorView extends MobileCarousel.MobileCarouselView
+
+      tagName: "div"
+      className: "error"
+
       initialize: (element) ->
          @setElement(element)
       SetErrorEvent: (eventName) ->
@@ -74,20 +78,25 @@ $ ->
    window.Views or= {}
 
    window.Views.CartHeaderView = class CartHeaderView extends MobileCarousel.MobileCarouselView
-      el: ($ "#cart-view")
+      tagName: "div"
+      className: "cart-count"
       
       template: _.template(($ "#cart-template").html())
 
       initialize: ->
          $(document).on("cart:reset", => @.render())
 
-         errorView = new ErrorView(@.$('div.error'))
+         errorView = new ErrorView
          errorView.SetErrorEvent("cart:error")
          errorView.SetSuccessEvent("cart:reset")
 
+         @$el.append(errorView)
+
       render: ->
-         @.$('div.cart-count').html(@template({totalQuantity: Cart.CartModelSingleton.getTotalQuantity()}))
+         @$el.html(@template({totalQuantity: Cart.CartModelSingleton.getTotalQuantity()}))
+         console.log(@$el)
          @ 
 
       update: ->
          Cart.CartModelSingleton.fetch()
+         @

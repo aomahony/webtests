@@ -68,9 +68,8 @@ $ ->
 
    window.MobileCarousel.MobileCarouselCollectionView = class MobileCarouselCollectionView extends Backbone.Marionette.CollectionView
       constructor: (options) ->
-         Backbone.Marionette.CollectionView.prototype.constructor.apply(this, arguments);
-
          options or= {}
+         Backbone.Marionette.CollectionView.prototype.constructor.apply(this, arguments);
 
          if (false == options.unbindAddRemove? or true == options.unbindAddRemove)
             @.stopListening(@collection, "add")

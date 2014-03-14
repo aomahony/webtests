@@ -1,21 +1,17 @@
 $ ->   
 
-   class MobileCarouselAppHeaderView extends MobileCarousel.MobileCarouselView
-      el: ($ "div.header")
+   class MobileCarouselViewContainer extends MobileCarousel.MobileCarouselView
+
+      initialize: (element) ->
+         @.setElement(element)
 
       appendView: (view) ->         
-         @$el.append(view.el)
+         @$el.append(view.update().el)
          view.render()
-
-   class MobileCarouselAppContentView extends MobileCarousel.MobileCarouselView
-      el: ($ "div.content")
 
       setView: (view) ->
-         @$el.html(view.el)
+         @$el.html(view.update().el)
          view.render()
-
-   class MobileCarouselAppFooterView extends MobileCarousel.MobileCarouselView
-      el: ($ "div.footer")
 
    class MobileCarouselApp extends Backbone.Router
       routes:
@@ -26,37 +22,38 @@ $ ->
          @currentView = null
 
          # HEADER
-         @headerView = new MobileCarouselAppHeaderView
+         @headerView = new MobileCarouselViewContainer(($ "div.header"))
 
          # Header Views
          @cartHeaderView = new Views.CartHeaderView   
-         @headerView.appendView(@cartHeaderView.update())
+         @headerView.appendView(@cartHeaderView)
 
          # CONTENT
-         @contentView = new MobileCarouselAppContentView
+         @contentView = new MobileCarouselViewContainer(($ "div.content"))
 
          # Content Views
          @cartPageView = new Views.CartPageView   
 
          # FOOTER
-         @footerView = new MobileCarouselAppFooterView
+         @footerView = new MobileCarouselViewContainer($( "div.footer"))
+
+         # Footer Views
 
       switchView: (view) ->
          if null != @currentView
             @currentView.remove()
 
          if null != view
-            @contentView.setView(view.update())
+            @contentView.setView(view)
          @currentView = view
 
       cartAction: ->
          @.switchView(@cartPageView)
 
       defaultAction: (page) ->
+         console.log("Default Action: " + page)
          @.switchView(null)
 
-   Backbone.emulateHTTP = true
-   Backbone.emulateJSON = true
    mobileCarouselApp = new MobileCarouselApp
 
    Backbone.history.start();

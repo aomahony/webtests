@@ -1,7 +1,6 @@
 #= require ./mobile_carousel_classes
 
 $ ->
-   
    window.Cart or= {}
 
    class CartItemCollection extends MobileCarousel.MobileCarouselCollection
@@ -94,7 +93,6 @@ $ ->
 
       render: ->
          @$el.html(@template({totalQuantity: Cart.CartModelSingleton.getTotalQuantity()}))
-         console.log(@$el)
          @ 
 
       update: ->

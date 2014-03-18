@@ -17,11 +17,7 @@ $ ->
 
       initialize: ->
          @collection = Cart.CartModelSingleton.getItems()
-
-      render: ->
-         if (true == @$el.is(":visible"))
-            MobileCarousel.MobileCarouselCollectionView.prototype.render.call(@)
-         @
+         
       update: ->
          @collection.fetch()
          @

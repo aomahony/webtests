@@ -15,6 +15,9 @@ $ ->
    class CartItemsView extends MobileCarousel.MobileCarouselCollectionView
       itemView: CartItemView
 
+      initialize: ->
+         @collection = Cart.CartModelSingleton.getItems()
+
       render: ->
          if (true == @$el.is(":visible"))
             MobileCarousel.MobileCarouselCollectionView.prototype.render.call(@)
@@ -58,9 +61,7 @@ $ ->
          @.addRegion("items", "div#items")
          @.addRegion("cart_items", "div#cart-items")
 
-         @cartItemsView = new CartItemsView({
-                                                collection: Cart.CartModelSingleton.getItems()
-                                            })
+         @cartItemsView = new CartItemsView
          @itemsView = new ItemsView
 
       onShowCalled: ->

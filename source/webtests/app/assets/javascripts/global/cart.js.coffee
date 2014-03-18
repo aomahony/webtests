@@ -1,14 +1,9 @@
-# Place all the behaviors and hooks related to the matching controller here.
-# All this logic will automatically be available in application.js.
-# You can use CoffeeScript in this file: http://coffeescript.org/
-
 #= require ./mobile_carousel_classes
 #= require ./cart_header
 
 $ ->
 
    class CartItemView extends MobileCarousel.MobileCarouselItemView
-      tagName: "div"
       template: _.template(($ "#cart-item-template").html())
 
       events:
@@ -20,14 +15,15 @@ $ ->
    class CartItemsView extends MobileCarousel.MobileCarouselCollectionView
       itemView: CartItemView
 
-      tagName: "div"
-      className: "cartItems"
-
+      render: ->
+         if (true == @$el.is(":visible"))
+            MobileCarousel.MobileCarouselCollectionView.prototype.render.call(@)
+         @
       update: ->
          @collection.fetch()
+         @
 
    class ItemView extends MobileCarousel.MobileCarouselItemView
-      tagName: "div"
       template: _.template(($ "#item-template").html())
 
       events:
@@ -43,32 +39,35 @@ $ ->
    class ItemsView extends MobileCarousel.MobileCarouselCollectionView
       itemView: ItemView
 
-      tagName: "div"
-      className: "items"
-
       initialize: ->
          @collection = new ItemCollection
 
       update: ->
          @collection.fetch()
+         @
 
    window.Views or= {}
 
-   window.Views.CartPageView = class CartPageView extends MobileCarousel.MobileCarouselView
-      tagName: "div"
-      className: "cart"
+   window.Views.CartPageView = class CartPageView extends MobileCarousel.MobileCarouselLayout
+      template: _.template(($ "#cart-page-template").html())
+
+      id: "cart-page"
+      className: "cart_page"
 
       initialize: ->
+         @.addRegion("items", "div#items")
+         @.addRegion("cart_items", "div#cart-items")
+
          @cartItemsView = new CartItemsView({
                                                 collection: Cart.CartModelSingleton.getItems()
                                             })
          @itemsView = new ItemsView
 
-      render: ->
-         @$el.append(@itemsView.el)
-         @$el.append(@cartItemsView.el)
+      onShowCalled: ->
+         @itemsView.update()
+         @.items.show(@itemsView)
+         @cartItemsView.update()    
+         @.cart_items.show(@cartItemsView)
 
       update: ->
-         @itemsView.update()
-         @cartItemsView.update()
          @

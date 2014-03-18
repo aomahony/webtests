@@ -24,7 +24,7 @@ $ ->
       reset: (models, options) ->
          #These models have been completely validated and are in sync with the server
          #This is our local copy that we revert to if a sync fails
-         @previousModels = models;
+         @previousModels = models
          return Backbone.Collection.prototype.reset.call(@, models, options)
 
       saveAll: ->
@@ -37,7 +37,7 @@ $ ->
 
                # For some reason, sometimes the "error" event isn't propagated all the time
                # So I'm just triggering my own
-               @.trigger('collection:sync_error', @)
+               @.trigger('collection:sync_error', @, "Cart sync error")
          }
 
          # We need to send a "POST" instead of "PUT"
@@ -62,7 +62,7 @@ $ ->
 
    window.MobileCarousel.MobileCarouselModel = class MobileCarouselModel extends Backbone.Model
 
-   window.MobileCarousel.MobileCarouselView = class MobileCarouselView extends Backbone.View
+   window.MobileCarousel.MobileCarouselView = class MobileCarouselView extends Backbone.Marionette.View
 
    window.MobileCarousel.MobileCarouselItemView = class MobileCarouselItemView extends Backbone.Marionette.ItemView
 
@@ -74,6 +74,18 @@ $ ->
          if (false == options.unbindAddRemove? or true == options.unbindAddRemove)
             @.stopListening(@collection, "add")
             @.stopListening(@collection, "remove")
+            #@.stopListening(@collection, "reset")
+
+   window.MobileCarousel.MobileCarouselRegion = class MobileCarouselRegion extends Backbone.Marionette.Region
+      show: (view) ->
+         if (null == view)
+            @.close()
+         else
+            view.update()
+            Backbone.Marionette.Region.prototype.show.call(@, view)
+
+   window.MobileCarousel.MobileCarouselLayout = class MobileCarouselLayout extends Backbone.Marionette.Layout
+
 
    window.MobileCarousel.ItemModel = class ItemModel extends MobileCarousel.MobileCarouselModel
       defaults:

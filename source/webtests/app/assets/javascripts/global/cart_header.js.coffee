@@ -7,11 +7,6 @@ $ ->
       model: MobileCarousel.ItemModel
       url: "/cart"
 
-   # !!! NOTE!!  DO NOT USE THIS CLASS DIRECTLY
-   # Due to a CoffeeScript compilation bug, placing this class
-   # within the singleton class makes it inherit from itself,
-   # so we can't do that yet
-
    window.Cart.CartModelSingleton = class CartModelSingleton
       class CartModel extends MobileCarousel.MobileCarouselModel
          initialize: ->
@@ -60,41 +55,59 @@ $ ->
       @getItems: ->
          instance.items
 
-   class ErrorView extends MobileCarousel.MobileCarouselView
-
-      tagName: "div"
-      className: "error"
-
-      initialize: (element) ->
-         @setElement(element)
-      SetErrorEvent: (eventName) ->
-         $(document).on(eventName, (event, message) => @.render(message))
-      SetSuccessEvent: (eventName) ->
-         $(document).on(eventName, => @.render(""))
-      render: (message) ->
-         @$el.html(message)
-
-   window.Views or= {}
-
-   window.Views.CartHeaderView = class CartHeaderView extends MobileCarousel.MobileCarouselView
-      tagName: "div"
-      className: "cart-count"
-      
-      template: _.template(($ "#cart-template").html())
+   class ErrorView extends MobileCarousel.MobileCarouselItemView
+      template: _.template(($ "#error-template").html())
 
       initialize: ->
-         $(document).on("cart:reset", => @.render())
+         @.setMessage("")
 
-         errorView = new ErrorView
-         errorView.SetErrorEvent("cart:error")
-         errorView.SetSuccessEvent("cart:reset")
+      setMessage: (message) ->
+         @message = message
 
-         @$el.append(errorView)
+      serializeData: ->
+         {message: @message}
 
-      render: ->
-         @$el.html(@template({totalQuantity: Cart.CartModelSingleton.getTotalQuantity()}))
-         @ 
+   class CartCountView extends MobileCarousel.MobileCarouselItemView
+      template: _.template(($ "#cart-count-template").html())
+
+      serializeData: ->
+         {totalQuantity: Cart.CartModelSingleton.getTotalQuantity()}
 
       update: ->
          Cart.CartModelSingleton.fetch()
+         @
+
+   window.Views or= {}
+
+   window.Views.CartHeaderView = class CartHeaderView extends MobileCarousel.MobileCarouselLayout
+      id: "cart-header"
+      className: "cart_header"
+      
+      template: _.template(($ "#cart-header-template").html())
+
+      initialize: ->
+         $(document).on("cart:reset", => 
+            @.showError("")
+            @.cart_count.show(@cartCountView)
+         )
+         $(document).on("cart:error", (event, message) =>
+            @.showError(message)
+         )
+
+         @.addRegion("cart_count", "div#cart-count")
+         @.addRegion("error", "div#cart-error")
+
+         @errorView = new ErrorView
+         @cartCountView = new CartCountView
+
+      onShowCalled: ->
+         @cartCountView.update()
+         @.cart_count.show(@cartCountView)
+         @.error.show(@errorView)       
+
+      showError: (message) ->
+         @errorView.setMessage(message)
+         @.error.show(@errorView)
+
+      update: ->
          @

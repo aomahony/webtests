@@ -1,18 +1,5 @@
 $ ->   
 
-   class MobileCarouselViewContainer extends MobileCarousel.MobileCarouselView
-
-      initialize: (element) ->
-         @.setElement(element)
-
-      appendView: (view) ->         
-         @$el.append(view.update().el)
-         view.render()
-
-      setView: (view) ->
-         @$el.html(view.update().el)
-         view.render()
-
    class MobileCarouselApp extends Backbone.Router
       routes:
          "cart": "cartAction"
@@ -22,37 +9,25 @@ $ ->
          @currentView = null
 
          # HEADER
-         @headerView = new MobileCarouselViewContainer(($ "div.header"))
+         @headerRegion = new MobileCarousel.MobileCarouselRegion({el: "div.header"})
 
-         # Header Views
-         @cartHeaderView = new Views.CartHeaderView   
-         @headerView.appendView(@cartHeaderView)
+         # Header Views  
+         @headerRegion.show(new Views.CartHeaderView)
 
          # CONTENT
-         @contentView = new MobileCarouselViewContainer(($ "div.content"))
-
-         # Content Views
-         @cartPageView = new Views.CartPageView   
+         @contentRegion = new MobileCarousel.MobileCarouselRegion({el: "div.content"})
 
          # FOOTER
-         @footerView = new MobileCarouselViewContainer($( "div.footer"))
+         @footerRegion = new MobileCarousel.MobileCarouselRegion({el: "div.footer"})
 
          # Footer Views
 
-      switchView: (view) ->
-         if null != @currentView
-            @currentView.remove()
-
-         if null != view
-            @contentView.setView(view)
-         @currentView = view
-
       cartAction: ->
-         @.switchView(@cartPageView)
+         @contentRegion.show(new Views.CartPageView)
 
       defaultAction: (page) ->
-         console.log("Default Action: " + page)
-         @.switchView(null)
+         console.log(window.Views)
+         @contentRegion.show(new Views.HomePageView)
 
    mobileCarouselApp = new MobileCarouselApp
 

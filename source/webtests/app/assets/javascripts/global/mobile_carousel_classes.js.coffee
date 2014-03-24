@@ -42,6 +42,18 @@ $ ->
       @.BindFetchEvent(fetchEvent)
       @.BindLoadedEvent(loadedEvent)
 
+   Backbone.Marionette.View.prototype.UpdateOnShow = ->
+      # We want to update after we get the initial show event (incase we want to bind a loading view)
+      @.listenTo(@, "show", => 
+         @.Update()
+      )
+      @   
+
+   # Default update method, just here incase the views don't need to define it
+
+   Backbone.Marionette.View.prototype.Update = ->
+      @
+
    # Everything has to be added to the global namespace
    window.MobileCarousel or= {}
 
@@ -105,17 +117,7 @@ $ ->
 
    window.MobileCarousel.AMobileCarouselView = class AMobileCarouselView extends Backbone.Marionette.View
 
-   window.MobileCarousel.AMobileCarouselItemView = class AMobileCarouselItemView extends Backbone.Marionette.ItemView
-
-      UpdateOnShow: ->
-         # We want to update after we get the initial show event (incase we want to bind a loading view)
-         @.listenTo(@, "show", => 
-            @.Update()
-         )
-         @         
-
-      Update: ->
-         @
+   window.MobileCarousel.AMobileCarouselItemView = class AMobileCarouselItemView extends Backbone.Marionette.ItemView      
 
    window.MobileCarousel.AMobileCarouselCollectionView = class AMobileCarouselCollectionView extends Backbone.Marionette.CollectionView
       constructor: (options) ->

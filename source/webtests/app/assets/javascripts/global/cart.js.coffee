@@ -21,7 +21,7 @@ $ ->
          @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
          @.BindCollectionToFetchAndLoadedEvents()
 
-         @.Update()
+         @.UpdateOnShow()
 
       Update: ->
          @collection.fetch()
@@ -49,7 +49,7 @@ $ ->
          @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
          @.BindCollectionToFetchAndLoadedEvents()
 
-         @.Update()
+         @.UpdateOnShow()
 
       Update: ->
          @collection.fetch()
@@ -71,5 +71,5 @@ $ ->
          @.items.show(new AItemsView)  
          @.cart_items.show(new ACartItemsView)
 
-      Update: ->
-         @
+      #Update: ->
+      #   @

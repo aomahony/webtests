@@ -3,51 +3,53 @@
 
 $ ->
 
-   class CartItemView extends MobileCarousel.MobileCarouselItemView
+   class ACartItemView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#cart-item-template").html())
 
       events:
-         "click a.cart-item": "removeItem"
+         "click a.cart-item": "RemoveItem"
 
-      removeItem: ->
-         Cart.CartModelSingleton.removeItem(@model.get("id"))
+      RemoveItem: ->
+         Cart.ACartModelSingleton.RemoveItem(@model.get("id"))
 
-   class CartItemsView extends MobileCarousel.MobileCarouselCollectionView
-      itemView: CartItemView
+   class ACartItemsView extends MobileCarousel.AMobileCarouselCollectionView
+      itemView: ACartItemView
 
       initialize: ->
-         @collection = Cart.CartModelSingleton.getItems()
-         
-      update: ->
+         @collection = Cart.ACartModelSingleton.GetItems()
+         @.Update()
+
+      Update: ->
          @collection.fetch()
          @
 
-   class ItemView extends MobileCarousel.MobileCarouselItemView
+   class AItemView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#item-template").html())
 
       events:
-         "click a.item": "addItemToCart"
+         "click a.item": "AddItemToCart"
 
-      addItemToCart: ->
-         Cart.CartModelSingleton.addItem(@model.get("itemType"), @model.get("guid"), 10)
+      AddItemToCart: ->
+         Cart.ACartModelSingleton.AddItem(@model.get("itemType"), @model.get("guid"), 10)
 
-   class ItemCollection extends MobileCarousel.MobileCarouselCollection
-      model: MobileCarousel.ItemModel
+   class AItemCollection extends MobileCarousel.AMobileCarouselCollection
+      model: MobileCarousel.AItemModel
       url: "/cartitems"
 
-   class ItemsView extends MobileCarousel.MobileCarouselCollectionView
-      itemView: ItemView
+   class AItemsView extends MobileCarousel.AMobileCarouselCollectionView
+      itemView: AItemView
 
       initialize: ->
-         @collection = new ItemCollection
+         @collection = new AItemCollection
+         @.Update()
 
-      update: ->
+      Update: ->
          @collection.fetch()
          @
 
    window.Views or= {}
 
-   window.Views.CartPageView = class CartPageView extends MobileCarousel.MobileCarouselLayout
+   window.Views.ACartPageView = class ACartPageView extends MobileCarousel.AMobileCarouselLayout
       template: _.template(($ "#cart-page-template").html())
 
       id: "cart-page"
@@ -57,14 +59,9 @@ $ ->
          @.addRegion("items", "div#items")
          @.addRegion("cart_items", "div#cart-items")
 
-         @cartItemsView = new CartItemsView
-         @itemsView = new ItemsView
-
       onShowCalled: ->
-         @itemsView.update()
-         @.items.show(@itemsView)
-         @cartItemsView.update()    
-         @.cart_items.show(@cartItemsView)
+         @.items.show(new AItemsView)  
+         @.cart_items.show(new ACartItemsView)
 
-      update: ->
+      Update: ->
          @

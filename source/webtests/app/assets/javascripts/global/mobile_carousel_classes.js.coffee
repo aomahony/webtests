@@ -4,7 +4,7 @@ $ ->
 
    window.MobileCarousel or= {}
 
-   window.MobileCarousel.MobileCarouselCollection = class MobileCarouselCollection extends Backbone.Collection
+   window.MobileCarousel.AMobileCarouselCollection = class AMobileCarouselCollection extends Backbone.Collection
 
       initialize: ->
          @name = "_collection"
@@ -60,13 +60,13 @@ $ ->
          }
          return Backbone.Collection.prototype.fetch.call(@, options)
 
-   window.MobileCarousel.MobileCarouselModel = class MobileCarouselModel extends Backbone.Model
+   window.MobileCarousel.AMobileCarouselModel = class AMobileCarouselModel extends Backbone.Model
 
-   window.MobileCarousel.MobileCarouselView = class MobileCarouselView extends Backbone.Marionette.View
+   window.MobileCarousel.AMobileCarouselView = class AMobileCarouselView extends Backbone.Marionette.View
 
-   window.MobileCarousel.MobileCarouselItemView = class MobileCarouselItemView extends Backbone.Marionette.ItemView
+   window.MobileCarousel.AMobileCarouselItemView = class AMobileCarouselItemView extends Backbone.Marionette.ItemView
 
-   window.MobileCarousel.MobileCarouselCollectionView = class MobileCarouselCollectionView extends Backbone.Marionette.CollectionView
+   window.MobileCarousel.AMobileCarouselCollectionView = class AMobileCarouselCollectionView extends Backbone.Marionette.CollectionView
       constructor: (options) ->
          options or= {}
          Backbone.Marionette.CollectionView.prototype.constructor.apply(this, arguments);
@@ -76,18 +76,35 @@ $ ->
             @.stopListening(@collection, "remove")
             #@.stopListening(@collection, "reset")
 
-   window.MobileCarousel.MobileCarouselRegion = class MobileCarouselRegion extends Backbone.Marionette.Region
+   window.MobileCarousel.AMobileCarouselErrorView = class AMobileCarouselErrorView extends MobileCarousel.AMobileCarouselItemView
+      template: _.template(($ "#error-template").html())
+
+      initialize: (options) ->
+         @message = ""
+         $(document).on(options['successEvent'], => 
+            @message = ""
+            @.render()
+         )
+         $(document).on(options['errorEvent'], (event, message) =>
+            @message = message
+            @.render()
+         )
+
+      serializeData: ->
+         {message: @message}
+
+   window.MobileCarousel.AMobileCarouselRegion = class AMobileCarouselRegion extends Backbone.Marionette.Region
       show: (view) ->
          if (null == view)
+            # This should never happen
             @.close()
          else
-            view.update()
             Backbone.Marionette.Region.prototype.show.call(@, view)
 
-   window.MobileCarousel.MobileCarouselLayout = class MobileCarouselLayout extends Backbone.Marionette.Layout
+   window.MobileCarousel.AMobileCarouselLayout = class AMobileCarouselLayout extends Backbone.Marionette.Layout
 
 
-   window.MobileCarousel.ItemModel = class ItemModel extends MobileCarousel.MobileCarouselModel
+   window.MobileCarousel.AItemModel = class AItemModel extends MobileCarousel.AMobileCarouselModel
       defaults:
          itemType: ""
          guid: ""

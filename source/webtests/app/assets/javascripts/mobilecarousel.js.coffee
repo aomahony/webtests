@@ -1,34 +1,30 @@
 $ ->   
 
-   class MobileCarouselApp extends Backbone.Router
+   class AMobileCarouselApp extends Backbone.Router
       routes:
          "cart": "cartAction"
          "*page": "defaultAction"
 
       initialize: ->
-         @currentView = null
-
          # HEADER
-         @headerRegion = new MobileCarousel.MobileCarouselRegion({el: "div.header"})
+         @headerRegion = new MobileCarousel.AMobileCarouselRegion({el: "div.header"})
 
          # Header Views  
-         @headerRegion.show(new Views.CartHeaderView)
+         @headerRegion.show(new Views.ACartHeaderView)
 
          # CONTENT
-         @contentRegion = new MobileCarousel.MobileCarouselRegion({el: "div.content"})
+         @contentRegion = new MobileCarousel.AMobileCarouselRegion({el: "div.content"})
 
          # FOOTER
-         @footerRegion = new MobileCarousel.MobileCarouselRegion({el: "div.footer"})
+         @footerRegion = new MobileCarousel.AMobileCarouselRegion({el: "div.footer"})
 
          # Footer Views
 
       cartAction: ->
-         @contentRegion.show(new Views.CartPageView)
+         @contentRegion.show(new Views.ACartPageView)
 
       defaultAction: (page) ->
-         console.log(window.Views)
-         @contentRegion.show(new Views.HomePageView)
+         @contentRegion.show(new Views.AHomePageView)
 
-   mobileCarouselApp = new MobileCarouselApp
-
+   new AMobileCarouselApp
    Backbone.history.start();

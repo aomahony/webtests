@@ -3,12 +3,11 @@
 $ ->
    window.Views or= {}
 
-   console.log("IS THIS BEING CALLED")
-   window.Views.HomePageView = class HomePageView extends MobileCarousel.MobileCarouselLayout
+   window.Views.AHomePageView = class AHomePageView extends MobileCarousel.AMobileCarouselLayout
       template: _.template(($ "#home-page-template").html())
 
       id: "home-page"
       className: "home_page"
 
-      update: ->
+      Update: ->
          @

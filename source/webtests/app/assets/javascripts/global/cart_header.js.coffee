@@ -3,14 +3,14 @@
 $ ->
    window.Cart or= {}
 
-   class CartItemCollection extends MobileCarousel.MobileCarouselCollection
-      model: MobileCarousel.ItemModel
+   class ACartItemCollection extends MobileCarousel.AMobileCarouselCollection
+      model: MobileCarousel.AItemModel
       url: "/cart"
 
-   window.Cart.CartModelSingleton = class CartModelSingleton
-      class CartModel extends MobileCarousel.MobileCarouselModel
+   window.Cart.ACartModelSingleton = class ACartModelSingleton
+      class ACartModel extends MobileCarousel.AMobileCarouselModel
          initialize: ->
-            @items = new CartItemCollection
+            @items = new ACartItemCollection
             @items.setName("cart")
 
             @.listenTo(@items, "collection:sync_error", (object, event) =>
@@ -20,94 +20,72 @@ $ ->
                $(document).trigger("cart:reset")
             )
 
-         getTotalQuantity: ->
+         GetTotalQuantity: ->
             return @items.length
 
-         addItem: (type, guid, quantity) ->
+         AddItem: (type, guid, quantity) ->
             for i in [0...quantity]
                @items.add({"itemType": type, "guid": guid})
-            @saveAll()
+            @SaveAll()
 
-         removeItem: (id) ->
+         RemoveItem: (id) ->
             @items.remove(@items.get(id))
-            @saveAll()
+            @SaveAll()
 
-         saveAll: ->
+         SaveAll: ->
             @items.saveAll()
 
-         fetch: ->
+         Fetch: ->
             @items.fetch()
 
-      instance = new CartModel
+      instance = new ACartModel
 
-      @getTotalQuantity: ->
-         instance.getTotalQuantity()
+      @GetTotalQuantity: ->
+         instance.GetTotalQuantity()
 
-      @addItem: (type, guid, quantity) ->
-         instance.addItem(type, guid, quantity)
+      @AddItem: (type, guid, quantity) ->
+         instance.AddItem(type, guid, quantity)
 
-      @removeItem: (id) ->
-         instance.removeItem(id)
+      @RemoveItem: (id) ->
+         instance.RemoveItem(id)
 
-      @fetch: ->
-         instance.fetch()
+      @Fetch: ->
+         instance.Fetch()
 
-      @getItems: ->
+      @GetItems: ->
          instance.items
 
-   class ErrorView extends MobileCarousel.MobileCarouselItemView
-      template: _.template(($ "#error-template").html())
-
-      initialize: ->
-         @.setMessage("")
-
-      setMessage: (message) ->
-         @message = message
-
-      serializeData: ->
-         {message: @message}
-
-   class CartCountView extends MobileCarousel.MobileCarouselItemView
+   class ACartCountView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#cart-count-template").html())
 
-      serializeData: ->
-         {totalQuantity: Cart.CartModelSingleton.getTotalQuantity()}
+      initialize: ->
+         $(document).on("cart:reset", => 
+            @.render()
+         )
+         @.Update()
 
-      update: ->
-         Cart.CartModelSingleton.fetch()
+      serializeData: ->
+         {totalQuantity: Cart.ACartModelSingleton.GetTotalQuantity()}
+
+      Update: ->
+         Cart.ACartModelSingleton.Fetch()
          @
 
    window.Views or= {}
 
-   window.Views.CartHeaderView = class CartHeaderView extends MobileCarousel.MobileCarouselLayout
+   window.Views.ACartHeaderView = class ACartHeaderView extends MobileCarousel.AMobileCarouselLayout
       id: "cart-header"
       className: "cart_header"
       
       template: _.template(($ "#cart-header-template").html())
 
       initialize: ->
-         $(document).on("cart:reset", => 
-            @.showError("")
-            @.cart_count.show(@cartCountView)
-         )
-         $(document).on("cart:error", (event, message) =>
-            @.showError(message)
-         )
-
          @.addRegion("cart_count", "div#cart-count")
          @.addRegion("error", "div#cart-error")
 
-         @errorView = new ErrorView
-         @cartCountView = new CartCountView
-
       onShowCalled: ->
-         @cartCountView.update()
-         @.cart_count.show(@cartCountView)
-         @.error.show(@errorView)       
+         @.cart_count.show(new ACartCountView)
+         @.error.show(new MobileCarousel.AMobileCarouselErrorView({errorEvent: "cart:error", successEvent: "cart:reset"}))    
 
-      showError: (message) ->
-         @errorView.setMessage(message)
-         @.error.show(@errorView)
-
-      update: ->
+      Update: ->
          @

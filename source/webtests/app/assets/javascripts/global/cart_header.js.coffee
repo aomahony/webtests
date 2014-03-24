@@ -13,6 +13,9 @@ $ ->
             @items = new ACartItemCollection
             @items.setName("cart")
 
+            @.listenTo(@items, "request", (object, event) =>
+               $(document).trigger("cart:request")
+            )
             @.listenTo(@items, "collection:sync_error", (object, event) =>
                $(document).trigger("cart:error", "Error syncing cart with server")
             )
@@ -62,7 +65,7 @@ $ ->
          $(document).on("cart:reset", => 
             @.render()
          )
-         @.Update()
+         @.UpdateOnShow()
 
       serializeData: ->
          {totalQuantity: Cart.ACartModelSingleton.GetTotalQuantity()}

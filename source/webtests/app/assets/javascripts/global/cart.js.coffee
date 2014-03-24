@@ -17,6 +17,10 @@ $ ->
 
       initialize: ->
          @collection = Cart.ACartModelSingleton.GetItems()
+
+         @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
+         @.BindCollectionToFetchAndLoadedEvents()
+
          @.Update()
 
       Update: ->
@@ -41,6 +45,10 @@ $ ->
 
       initialize: ->
          @collection = new AItemCollection
+
+         @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
+         @.BindCollectionToFetchAndLoadedEvents()
+
          @.Update()
 
       Update: ->

@@ -4,6 +4,8 @@ $ ->
    # and CollectionView can use these methods
 
    Backbone.Marionette.View.prototype.SetLoadingView = (view) ->
+      # This is the view we display when the view is "loading",
+      # As in, waiting for data from the server
       @loadingView = view
 
    Backbone.Marionette.View.prototype.BindFetchEvent = (event) ->

@@ -62,6 +62,3 @@ $ ->
       onShowCalled: ->
          @.items.show(new AItemsView)  
          @.cart_items.show(new ACartItemsView)
-
-      #Update: ->
-      #   @

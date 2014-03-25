@@ -23,10 +23,6 @@ $ ->
 
          @.UpdateOnShow()
 
-      Update: ->
-         @collection.fetch()
-         @
-
    class AItemView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#item-template").html())
 
@@ -50,10 +46,6 @@ $ ->
          @.BindCollectionToFetchAndLoadedEvents()
 
          @.UpdateOnShow()
-
-      Update: ->
-         @collection.fetch()
-         @
 
    window.Views or= {}
 

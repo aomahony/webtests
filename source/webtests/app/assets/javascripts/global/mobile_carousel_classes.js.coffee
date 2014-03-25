@@ -133,6 +133,10 @@ $ ->
       BindCollectionToFetchAndLoadedEvents: ->
          @.BindFetchAndLoadedEvents(@collection, @collection)
 
+      Update: ->
+         @collection.fetch()
+         @
+
    window.MobileCarousel.AMobileCarouselErrorView = class AMobileCarouselErrorView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#error-template").html())
 

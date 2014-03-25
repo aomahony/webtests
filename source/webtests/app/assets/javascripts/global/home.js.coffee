@@ -8,6 +8,3 @@ $ ->
 
       id: "home-page"
       className: "home_page"
-
-      Update: ->
-         @

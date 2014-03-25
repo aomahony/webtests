@@ -3,11 +3,11 @@
 $ ->
    window.Cart or= {}
 
-   class ACartItemCollection extends MobileCarousel.AMobileCarouselCollection
-      model: MobileCarousel.AItemModel
-      url: "/cart"
-
    window.Cart.ACartModelSingleton = class ACartModelSingleton
+      class ACartItemCollection extends MobileCarousel.AMobileCarouselCollection
+         model: MobileCarousel.AItemModel
+         url: "/cart"
+
       class ACartModel extends MobileCarousel.AMobileCarouselModel
          initialize: ->
             @items = new ACartItemCollection
@@ -89,6 +89,3 @@ $ ->
       onShowCalled: ->
          @.cart_count.show(new ACartCountView)
          @.error.show(new MobileCarousel.AMobileCarouselErrorView({errorEvent: "cart:error", successEvent: "cart:reset"}))    
-
-      #Update: ->
-      #   @

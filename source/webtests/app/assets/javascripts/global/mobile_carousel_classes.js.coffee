@@ -83,7 +83,8 @@ $ ->
          return Backbone.Collection.prototype.reset.call(@, models, options)
 
       saveAll: ->
-         options = {
+         options = 
+         {
             success: (models, response, xhr) =>
                @.reset(models)
                @.trigger('collection:sync_success', @)
@@ -92,7 +93,7 @@ $ ->
 
                # For some reason, sometimes the "error" event isn't propagated all the time
                # So I'm just triggering my own
-               @.trigger('collection:sync_error', @, "Cart sync error")
+               @.trigger('collection:sync_error', @)
          }
 
          # We need to send a "POST" instead of "PUT"
@@ -102,7 +103,8 @@ $ ->
          return Backbone.sync('create', @, options)
 
       fetch: ->
-         options = {
+         options = 
+         {
             reset: true
             success: (models, response, xhr) =>
                @.trigger('collection:sync_success', @)
@@ -114,6 +116,28 @@ $ ->
                @.trigger('collection:sync_error', @)
          }
          return Backbone.Collection.prototype.fetch.call(@, options)
+
+      fetchPage: (currentPage, pageSize) ->
+         options =
+         {
+            reset: false
+            success: (models, response, xhr) =>
+               @.add(models, {silent: true})
+               @.reset(@models);
+               @.trigger('collection:page_fetched', @)
+         
+            error: (model, response, options) =>
+               @.reset(@previousModels)
+
+               # For some reason, sometimes the "error" event isn't propagated all the time
+               # So I'm just triggering my own
+               @.trigger('collection:sync_error', @)
+
+            data:
+               page: currentPage
+               pageSize: pageSize
+         }
+         return Backbone.Collection.prototype.sync.call(@, 'read', @, options)
 
    window.MobileCarousel.AMobileCarouselModel = class AMobileCarouselModel extends Backbone.Model
 
@@ -137,6 +161,39 @@ $ ->
          @collection.fetch()
          @
 
+      SetCollection: (collection) ->
+         @collection = collection
+
+   window.MobileCarousel.AMobileCarouselPagedCollectionView = class AMobileCarouselPagedCollectionView extends MobileCarousel.AMobileCarouselCollectionView
+      constructor: (options) ->
+         options or= {}
+         MobileCarousel.AMobileCarouselCollectionView.prototype.constructor.apply(this, arguments)
+
+         @currentPage = 0;
+         @pageSize = options['pageSize']
+
+      SetLoadMoreView: (loadMoreView) ->
+         @loadMoreView = loadMoreView
+         $(document).on("new_page_requested", => @.Update())
+
+      SetCollection: (collection) ->
+         MobileCarousel.AMobileCarouselCollectionView.prototype.SetCollection.call(@, collection)
+         @.listenTo(@collection, "collection:page_fetched", => @.NewPageFetched())
+
+      NewPageFetched: ->
+         @currentPage++
+
+      Update: ->
+         @collection.fetchPage(@currentPage, @pageSize)
+
+      render: ->
+         @isClosed = false
+         @.triggerBeforeRender()
+         @._renderChildren()
+         @$el.append(@loadMoreView.render().el)
+         @.triggerRendered()
+         @
+
    window.MobileCarousel.AMobileCarouselErrorView = class AMobileCarouselErrorView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#error-template").html())
 
@@ -156,6 +213,15 @@ $ ->
 
    window.MobileCarousel.AMobileCarouselLoadingView = class AMobileCarouselLoadingView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#loading-template").html())
+
+   window.MobileCarousel.AMobileCarouselLoadMoreView = class AMobileCarouselLoadMoreView extends MobileCarousel.AMobileCarouselItemView
+      template: _.template(($ "#load-more-template").html())
+
+      events:
+         "click a#load-more": "NewPageRequested"
+
+      NewPageRequested: ->
+         $(document).trigger("new_page_requested")
 
    window.MobileCarousel.AMobileCarouselRegion = class AMobileCarouselRegion extends Backbone.Marionette.Region
 

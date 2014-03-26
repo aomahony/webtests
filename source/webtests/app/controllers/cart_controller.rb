@@ -9,7 +9,15 @@ class CartController < ApplicationController
 
    def get
       cart = Cart.getCart
-      render :json => cart.cart_items
+
+      if nil != params[:page] and nil != params[:pageSize]
+         page = params[:page].to_i
+         pageSize = params[:pageSize].to_i
+
+         render :json => cart.cart_items.slice(page * pageSize, pageSize)
+      else
+         render :json => cart.cart_items
+      end
    end
 
    def update

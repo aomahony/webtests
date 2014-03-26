@@ -58,6 +58,9 @@ $ ->
       @GetItems: ->
          instance.items
 
+      @GetItemsClone: ->
+         new ACartItemCollection
+
    class ACartCountView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#cart-count-template").html())
 

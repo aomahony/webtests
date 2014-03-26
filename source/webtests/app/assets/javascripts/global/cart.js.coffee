@@ -12,13 +12,14 @@ $ ->
       RemoveItem: ->
          Cart.ACartModelSingleton.RemoveItem(@model.get("id"))
 
-   class ACartItemsView extends MobileCarousel.AMobileCarouselCollectionView
+   class ACartItemsView extends MobileCarousel.AMobileCarouselPagedCollectionView
       itemView: ACartItemView
 
       initialize: ->
-         @collection = Cart.ACartModelSingleton.GetItems()
+         @.SetCollection(Cart.ACartModelSingleton.GetItemsClone())
 
          @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
+         @.SetLoadMoreView(new MobileCarousel.AMobileCarouselLoadMoreView)
          @.BindCollectionToFetchAndLoadedEvents()
 
          @.UpdateOnShow()
@@ -40,7 +41,7 @@ $ ->
       itemView: AItemView
 
       initialize: ->
-         @collection = new AItemCollection
+         @.SetCollection(new AItemCollection)
 
          @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
          @.BindCollectionToFetchAndLoadedEvents()
@@ -61,4 +62,4 @@ $ ->
 
       onShowCalled: ->
          @.items.show(new AItemsView)  
-         @.cart_items.show(new ACartItemsView)
+         @.cart_items.show(new ACartItemsView({pageSize: 10}))

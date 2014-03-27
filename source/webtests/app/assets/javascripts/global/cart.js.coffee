@@ -20,6 +20,7 @@ $ ->
 
          @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
          @.SetLoadMoreView(new MobileCarousel.AMobileCarouselLoadMoreView)
+
          @.BindCollectionToFetchAndLoadedEvents()
 
          @.UpdateOnShow()

@@ -14,7 +14,11 @@ class CartController < ApplicationController
          page = params[:page].to_i
          pageSize = params[:pageSize].to_i
 
-         render :json => cart.cart_items.slice(page * pageSize, pageSize)
+         returnHash = {}
+         returnHash['items'] = cart.cart_items.slice(page * pageSize, pageSize)
+         returnHash['isDone'] = if (page + 1) * pageSize > cart.cart_items.length then true else false end
+
+         render :json => returnHash
       else
          render :json => cart.cart_items
       end

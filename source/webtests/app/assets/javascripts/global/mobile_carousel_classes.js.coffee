@@ -3,6 +3,12 @@ $ ->
    # We add these methods to Marionette.View directly as both ItemView
    # and CollectionView can use these methods
 
+   Backbone.Marionette.View.prototype.Show = ->
+      @$el.show()
+
+   Backbone.Marionette.View.prototype.Hide = ->
+      @$el.hide()
+
    Backbone.Marionette.View.prototype.SetLoadingView = (view) ->
       # This is the view we display when the view is "loading",
       # As in, waiting for data from the server
@@ -121,10 +127,10 @@ $ ->
          options =
          {
             reset: false
-            success: (models, response, xhr) =>
-               @.add(models, {silent: true})
-               @.reset(@models);
-               @.trigger('collection:page_fetched', @)
+            success: (data, response, xhr) =>
+               @.add(data['items'], {silent: true})
+               @.reset(@models)
+               @.trigger('collection:page_fetched', @, {isDone: data['isDone']})
          
             error: (model, response, options) =>
                @.reset(@previousModels)
@@ -174,11 +180,15 @@ $ ->
 
       SetLoadMoreView: (loadMoreView) ->
          @loadMoreView = loadMoreView
-         $(document).on("new_page_requested", => @.Update())
+         @.listenTo(@loadMoreView, "new_page_requested", => @.Update())
 
       SetCollection: (collection) ->
          MobileCarousel.AMobileCarouselCollectionView.prototype.SetCollection.call(@, collection)
-         @.listenTo(@collection, "collection:page_fetched", => @.NewPageFetched())
+         @.listenTo(@collection, "collection:page_fetched", (object, params) => 
+            @.NewPageFetched()
+            if true == params['isDone']
+               @loadMoreView.Hide()
+         )
 
       NewPageFetched: ->
          @currentPage++
@@ -221,7 +231,7 @@ $ ->
          "click a#load-more": "NewPageRequested"
 
       NewPageRequested: ->
-         $(document).trigger("new_page_requested")
+         @.trigger("new_page_requested")
 
    window.MobileCarousel.AMobileCarouselRegion = class AMobileCarouselRegion extends Backbone.Marionette.Region
 

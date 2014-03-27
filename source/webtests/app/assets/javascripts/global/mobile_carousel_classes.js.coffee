@@ -232,6 +232,7 @@ $ ->
       SetLoadMoreView: (loadMoreView) ->
          @loadMoreView = loadMoreView
          @.listenTo(@loadMoreView, "new_page_requested", => @.Update())
+         @loadMoreView
 
       SetCollection: (collection) ->
          MobileCarousel.AMobileCarouselCollectionView.prototype.SetCollection.call(@, collection)

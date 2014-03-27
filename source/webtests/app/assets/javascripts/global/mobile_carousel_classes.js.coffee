@@ -70,9 +70,18 @@ $ ->
       initialize: ->
          @name = "_collection"
          @previousModels = []
+         @collectionTracking = null
 
       setName: (name) ->
          @name = name
+
+      IsTrackingCollection: ->
+         return null != @collectionTracking
+
+      TrackCollection: (collection) ->
+         @collectionTracking = collection
+         @.listenTo(@collectionTracking, "reset", => 
+            @.trigger("tracked_collection_reset", @))
 
       # We need to send a JSON hash to the server
       # as some servers (Rails, who knows about ASP) will automatically convert
@@ -89,6 +98,9 @@ $ ->
          return Backbone.Collection.prototype.reset.call(@, models, options)
 
       saveAll: ->
+         if true == @.IsTrackingCollection
+            throw Error("Cannot call saveAll while tracking a collection!")
+
          options = 
          {
             success: (models, response, xhr) =>
@@ -108,42 +120,81 @@ $ ->
          # The create method will do this for us
          return Backbone.sync('create', @, options)
 
+      # Remote and Local data-access functions
+      # Remote request data from the server, while the local request data from ANOTHER collection
+      # A collection can "track" a local collection for changes
+      # This is used incase we have one master copy of a collection and a view which reads from it
+      # EG: The shopping cart is managed by a singleton, but the cart view shows its contents
+
       fetch: ->
-         options = 
-         {
-            reset: true
-            success: (models, response, xhr) =>
-               @.trigger('collection:sync_success', @)
-            error: (model, response, options) =>
-               @.reset(@previousModels)
+         if true == @.IsTrackingCollection()
+            @.reset(@collectionTracking.models)
+            return true
+         else         
+            options = 
+            {
+               reset: true
+               success: (models, response, xhr) =>
+                  @.trigger('collection:sync_success', @)
+               error: (model, response, options) =>
+                  @.reset(@previousModels)
 
-               # For some reason, sometimes the "error" event isn't propagated all the time
-               # So I'm just triggering my own
-               @.trigger('collection:sync_error', @)
-         }
-         return Backbone.Collection.prototype.fetch.call(@, options)
+                  # For some reason, sometimes the "error" event isn't propagated all the time
+                  # So I'm just triggering my own
+                  @.trigger('collection:sync_error', @)
+            }
+            return Backbone.Collection.prototype.fetch.call(@, options)
 
-      fetchPage: (currentPage, pageSize) ->
-         options =
-         {
-            reset: false
-            success: (data, response, xhr) =>
-               @.add(data['items'], {silent: true})
-               @.reset(@models)
-               @.trigger('collection:page_fetched', @, {isDone: data['isDone']})
-         
-            error: (model, response, options) =>
-               @.reset(@previousModels)
+      fetchAmount: (amount) ->
+         if true == @.IsTrackingCollection()
+            @.reset(@collectionTracking.models.slice(0, amount))
+            isDone = if amount < @collectionTracking.length then false else true
+            @.trigger("collection:amount_fetched", @, {isDone: isDone})
+         else
+            options = 
+            {
+               reset: true
+               success: (models, response, xhr) =>
+                  @.trigger('collection:sync_success', @)
+               error: (model, response, options) =>
+                  @.reset(@previousModels)
 
-               # For some reason, sometimes the "error" event isn't propagated all the time
-               # So I'm just triggering my own
-               @.trigger('collection:sync_error', @)
+                  # For some reason, sometimes the "error" event isn't propagated all the time
+                  # So I'm just triggering my own
+                  @.trigger('collection:sync_error', @)
+               data:
+                  length: amount
+            }       
+            return Backbone.Collection.prototype.fetch.call(@, options)  
 
-            data:
-               page: currentPage
-               pageSize: pageSize
-         }
-         return Backbone.Collection.prototype.sync.call(@, 'read', @, options)
+      fetchPage: (page, pageSize) ->
+         if true == @.IsTrackingCollection()
+            startIndex = page * pageSize
+            @.add(@collectionTracking.models.slice(startIndex, startIndex + pageSize), {silent: true})
+            @.reset(@models)
+
+            isDone = if (page + 1) * pageSize < @collectionTracking.length then false else true
+            @.trigger('collection:page_fetched', @, {isDone: isDone})
+         else
+            options =
+            {
+               reset: false
+               success: (data, response, xhr) =>
+                  @.add(data['items'], {silent: true})
+                  @.reset(@models)
+                  @.trigger('collection:page_fetched', @, {isDone: data['isDone']})
+            
+               error: (model, response, options) =>
+                  @.reset(@previousModels)
+
+                  # For some reason, sometimes the "error" event isn't propagated all the time
+                  # So I'm just triggering my own
+                  @.trigger('collection:sync_error', @)
+               data:
+                  page: page
+                  pageSize: pageSize
+            }
+            return Backbone.sync('read', @, options)
 
    window.MobileCarousel.AMobileCarouselModel = class AMobileCarouselModel extends Backbone.Model
 
@@ -156,7 +207,7 @@ $ ->
          options or= {}
          Backbone.Marionette.CollectionView.prototype.constructor.apply(this, arguments)
 
-         if false == options.unbindAddRemove? or true == options.unbindAddRemove
+         if null != @collection and (false == options.keepAddRemove? or false == options.keepAddRemove)
             @.stopListening(@collection, "add")
             @.stopListening(@collection, "remove")
 
@@ -188,6 +239,18 @@ $ ->
             @.NewPageFetched()
             if true == params['isDone']
                @loadMoreView.Hide()
+            else
+               @loadMoreView.Show()
+         )
+         @.listenTo(@collection, "collection:amount_fetched", (object, params) =>
+            if true == params['isDone']
+               @loadMoreView.Hide()
+            else
+               @loadMoreView.Show()
+         )
+
+         @.listenTo(@collection, "tracked_collection_reset", (object) =>
+            @collection.fetchAmount(@currentPage * @pageSize)
          )
 
       NewPageFetched: ->

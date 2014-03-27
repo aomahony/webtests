@@ -17,6 +17,7 @@ $ ->
 
       initialize: ->
          @.SetCollection(Cart.ACartModelSingleton.GetItemsClone())
+         @collection.TrackCollection(Cart.ACartModelSingleton.GetItems())
 
          @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
          @.SetLoadMoreView(new MobileCarousel.AMobileCarouselLoadMoreView)

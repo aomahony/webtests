@@ -58,8 +58,10 @@ $ ->
       @GetItems: ->
          instance.items
 
-      @GetItemsClone: ->
-         new ACartItemCollection
+      @Track: ->
+         returnValue = new ACartItemCollection
+         returnValue.TrackCollection(ACartModelSingleton.GetItems())
+         returnValue
 
    class ACartCountView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#cart-count-template").html())

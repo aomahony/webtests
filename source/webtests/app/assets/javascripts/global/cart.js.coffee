@@ -12,12 +12,11 @@ $ ->
       RemoveItem: ->
          Cart.ACartModelSingleton.RemoveItem(@model.get("id"))
 
-   class ACartItemsView extends MobileCarousel.AMobileCarouselPagedCollectionView
+   class ACartItemsListView extends MobileCarousel.AMobileCarouselPagedCollectionView
       itemView: ACartItemView
 
       initialize: ->
-         @.SetCollection(Cart.ACartModelSingleton.GetItemsClone())
-         @collection.TrackCollection(Cart.ACartModelSingleton.GetItems())
+         @.SetCollection(Cart.ACartModelSingleton.Track())
 
          @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
          @.SetLoadMoreView(new MobileCarousel.AMobileCarouselLoadMoreView)
@@ -25,6 +24,18 @@ $ ->
          @.BindCollectionToFetchAndLoadedEvents()
 
          @.UpdateOnShow()
+
+   class ACartItemsView extends MobileCarousel.AMobileCarouselLayout
+      template: _.template(($ "#cart-items-template").html())
+
+      initialize: ->
+         @.addRegion("cart_items_list", "div#cart-items-list")
+         @.addRegion("load_more_cart_items", "div#load-more-cart-items")
+
+      onShowCalled: ->
+         # !!! I think there can be a better way to streamline this
+         @.cart_items_list.show(new ACartItemsListView({pageSize: 10}))
+         @.load_more_cart_items.show(@.cart_items_list.currentView.loadMoreView)
 
    class AItemView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#item-template").html())
@@ -64,4 +75,4 @@ $ ->
 
       onShowCalled: ->
          @.items.show(new AItemsView)  
-         @.cart_items.show(new ACartItemsView({pageSize: 10}))
+         @.cart_items.show(new ACartItemsView)

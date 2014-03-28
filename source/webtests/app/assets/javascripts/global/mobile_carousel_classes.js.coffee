@@ -1,5 +1,11 @@
 $ ->
 
+   # This class is just a collection of classes extending from Backbone.Marionette classes
+   # so we can implement custom functionality
+
+   # There is also some direct extension of Marionette.View as some classes which extend from
+   # Marionette.View can use the methods we define
+
    # We add these methods to Marionette.View directly as both ItemView
    # and CollectionView can use these methods
 
@@ -13,6 +19,10 @@ $ ->
       # This is the view we display when the view is "loading",
       # As in, waiting for data from the server
       @loadingView = view
+
+   # These two methods can either take an object or a string
+   # An object is a Backbone model which fires events
+   # A string is the name of an event that is fired by the document
 
    Backbone.Marionette.View.prototype.BindFetchEvent = (event) ->
       
@@ -63,6 +73,10 @@ $ ->
       @
 
    # Everything has to be added to the global namespace
+   # to be accessable from other files
+   # Basically, anything we want to use elsewhere is defined in the global namespace,
+   # while anything we just need "privately" is just defined within the file
+
    window.MobileCarousel or= {}
 
    window.MobileCarousel.AMobileCarouselCollection = class AMobileCarouselCollection extends Backbone.Collection
@@ -75,11 +89,23 @@ $ ->
       setName: (name) ->
          @name = name
 
+      # "Tracking" a collection means that this collection
+      # gets its data from another collection
+
+      # We do it this way because CollectionViews and such need
+      # their own collection object, so we keep the logic for
+      # actually filling that object within the object itself.
+
       IsTrackingCollection: ->
          return null != @collectionTracking
 
       TrackCollection: (collection) ->
          @collectionTracking = collection
+         # All our collections just use the "reset" event to signal changes.
+         # When this happens, the collection asks anyone who's listening (a view) to tell
+         # it how to refill itself, as the view typically manages the current state, and can
+         # quickly tell the collection how much data it needs to get from the updated tracked
+         # collection
          @.listenTo(@collectionTracking, "reset", => 
             @.trigger("tracked_collection_reset", @))
 
@@ -229,6 +255,11 @@ $ ->
          @currentPage = 0;
          @pageSize = options['pageSize']
 
+         if (true == options.useDefaultLoadMoreView? and true == options.useDefaultLoadMoreView)
+            @useDefaultLoadMoreView = true
+         else
+            @useDefaultLoadMoreView = false
+
       SetLoadMoreView: (loadMoreView) ->
          @loadMoreView = loadMoreView
          @.listenTo(@loadMoreView, "new_page_requested", => @.Update())
@@ -264,7 +295,9 @@ $ ->
          @isClosed = false
          @.triggerBeforeRender()
          @._renderChildren()
-         @$el.append(@loadMoreView.render().el)
+
+         if true == @useDefaultLoadMoreView
+            @$el.append(@loadMoreView.render().el)
          @.triggerRendered()
          @
 

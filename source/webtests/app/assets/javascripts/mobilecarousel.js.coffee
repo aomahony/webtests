@@ -1,5 +1,12 @@
 $ ->   
 
+   # This is where it all starts.  The Backbone.Router class
+   # defines a way to parse hashbangs in URL's, and allows us to
+   # display whatever page we want as a result
+
+   # Our basic page layout is composed of a header div, a content div,
+   # and a footer div, as well as all our Underscore.js templates
+
    class AMobileCarouselApp extends Backbone.Router
       routes:
          "cart": "cartAction"
@@ -26,5 +33,6 @@ $ ->
       defaultAction: (page) ->
          @contentRegion.show(new Views.AHomePageView)
 
+   # Create the app and start tracking history, and we're off!
    new AMobileCarouselApp
    Backbone.history.start();

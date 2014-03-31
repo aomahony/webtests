@@ -12,9 +12,6 @@
 
       %div.footer
 
-      %script#default-error-template{:type => "text/template"}
-         %div.error {%- message %}
-
       %script#cart-count-template{:type => "text/template"}
          %a{:href => "#cart"} My Cart ({%- totalQuantity %})
 
@@ -28,19 +25,22 @@
       %script#cart-item-template{:type => "text/template"}
          %a.cart-item {%- name %} - {%- itemType %} - {%- guid %}
 
-      %script#cart-page-template{:type => "text/template"}
-         %div.items#items
-         %div.cart_items#cart-items
-
       %script#cart-items-template{:type => "text/template"}
          %div.cart_items_list#cart-items-list
          %div.load_more_cart_items#load-more-cart-items
 
-      %script#home-page-template{:type => "text/template"}
-         This is the home page!
+      %script#default-error-template{:type => "text/template"}
+         %div.error {%- message %}
 
       %script#default-loading-template{:type => "text/template"}
          %h4 Loading...
 
       %script#default-load-more-template{:type => "text/template"}
          %a#load-more (Load more...)
+
+      %script#cart-page-template{:type => "text/template"}
+         %div.items#items
+         %div.cart_items#cart-items
+
+      %script#home-page-template{:type => "text/template"}
+         This is the home page!         

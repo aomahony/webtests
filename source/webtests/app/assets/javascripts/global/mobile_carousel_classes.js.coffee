@@ -238,6 +238,16 @@ $ ->
 
    window.MobileCarousel.AMobileCarouselItemView = class AMobileCarouselItemView extends Backbone.Marionette.ItemView      
 
+   # AMobileCarouselCollectionView
+   # Extends from Backbone.Marionette.CollectionView
+
+   # We extend it to provide update methods and loading views
+
+   # The options that we have added to the defaults are:
+
+   # useCustomLoadingView (boolean): If we have defined our own view object to display 
+   # when the collection is loading, we use it instead of the default template
+
    window.MobileCarousel.AMobileCarouselCollectionView = class AMobileCarouselCollectionView extends Backbone.Marionette.CollectionView
       constructor: (options) ->
          options or= {}
@@ -266,6 +276,22 @@ $ ->
 
       SetCollection: (collection) ->
          @collection = collection
+
+   # AMobileCarouselPagedCollectionView
+   # Extends from MobileCarousel.AMobileCarouselCollectionView
+
+   # We define this class to have a collection view which is loaded in pieces
+   # It handles displaying a view to "load more" if not previously defined,
+   # as well as interacting with the collection to fetch only a certain number of items
+
+   # The options that we have added to the defaults are:
+
+   # useCustomLoadMoreView (boolean): If we have defined our own view object to display
+   # for the "load more" button, we let the object know here
+
+   # appendLoadMoreView (boolean): If we want to just append the load more view to the end
+   # of what's rendered, we can do that.  Alternatively, we define our own region for it, as
+   # it might have its own styles and placement.
 
    window.MobileCarousel.AMobileCarouselPagedCollectionView = class AMobileCarouselPagedCollectionView extends MobileCarousel.AMobileCarouselCollectionView
       constructor: (options) ->
@@ -327,6 +353,12 @@ $ ->
          @.triggerRendered()
          @
 
+   # AMobileCarouselRegion
+
+   # A region shows views within it.  We can extend this just
+   # to streamline the process of showing a custom loading view that is
+   # not appended to the bottom of the collection view
+
    window.MobileCarousel.AMobileCarouselRegion = class AMobileCarouselRegion extends Backbone.Marionette.Region
       ShowWithLoadMoreView: (view, loadMoreViewRegion) ->
          Backbone.Marionette.Region.prototype.show.call(@, view)
@@ -335,6 +367,8 @@ $ ->
 
    window.MobileCarousel.AMobileCarouselLayout = class AMobileCarouselLayout extends Backbone.Marionette.Layout
       regionType: MobileCarousel.AMobileCarouselRegion
+
+   # These are just some default objects for quick implementation and functionality testing
 
    window.MobileCarousel.AMobileCarouselDefaultErrorView = class AMobileCarouselDefaultErrorView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#default-error-template").html())
@@ -364,6 +398,8 @@ $ ->
 
       NewPageRequested: ->
          @.trigger("new_page_requested")
+
+   # This is the model I'm currently using to define cart items
 
    window.MobileCarousel.AItemModel = class AItemModel extends MobileCarousel.AMobileCarouselModel
       defaults:

@@ -38,7 +38,7 @@ $ ->
          "click a.item": "AddItemToCart"
 
       AddItemToCart: ->
-         Cart.ACartModelSingleton.AddItem(@model.get("itemType"), @model.get("guid"), 10)
+         Cart.ACartModelSingleton.AddItem(@model.get("itemType"), @model.get("guid"), 1)
 
    class AItemCollection extends MobileCarousel.AMobileCarouselCollection
       model: MobileCarousel.AItemModel

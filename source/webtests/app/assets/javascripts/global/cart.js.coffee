@@ -18,11 +18,9 @@ $ ->
       initialize: ->
          @.SetCollection(Cart.ACartModelSingleton.Track())
 
-         @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
-         @.SetLoadMoreView(new MobileCarousel.AMobileCarouselLoadMoreView)
+         @.SetLoadMoreView(new MobileCarousel.AMobileCarouselDefaultLoadMoreView)
 
          @.BindCollectionToFetchAndLoadedEvents()
-
          @.UpdateOnShow()
 
    class ACartItemsView extends MobileCarousel.AMobileCarouselLayout
@@ -33,9 +31,7 @@ $ ->
          @.addRegion("load_more_cart_items", "div#load-more-cart-items")
 
       onShowCalled: ->
-         # !!! I think there can be a better way to streamline this
-         @.cart_items_list.show(new ACartItemsListView({pageSize: 10}))
-         @.load_more_cart_items.show(@.cart_items_list.currentView.loadMoreView)
+         @.cart_items_list.ShowWithLoadMoreView(new ACartItemsListView({pageSize: 10}), @.load_more_cart_items)
 
    class AItemView extends MobileCarousel.AMobileCarouselItemView
       template: _.template(($ "#item-template").html())
@@ -56,9 +52,7 @@ $ ->
       initialize: ->
          @.SetCollection(new AItemCollection)
 
-         @.SetLoadingView(new MobileCarousel.AMobileCarouselLoadingView)
          @.BindCollectionToFetchAndLoadedEvents()
-
          @.UpdateOnShow()
 
    window.Views or= {}

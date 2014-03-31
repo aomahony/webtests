@@ -1,6 +1,8 @@
 #= require ./mobile_carousel_classes
 
 $ ->
+   # Generic home page view
+
    window.Views or= {}
 
    window.Views.AHomePageView = class AHomePageView extends MobileCarousel.AMobileCarouselLayout

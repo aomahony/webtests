@@ -43,6 +43,8 @@ $ ->
          @.listenTo(event, "request", fetchEventHandler)
       else if "string" == typeof event
          $(document).on(event, fetchEventHandler)
+      else
+         throw Error("Invalid event " + event + " for BindFetchEvent!")
 
    Backbone.Marionette.View.prototype.BindLoadedEvent = (event) ->
       
@@ -55,10 +57,21 @@ $ ->
          @.listenTo(event, "reset", loadedEventHandler)
       else if "string" == typeof event
          $(document).on(event, loadedEventHandler) 
+      else
+         throw Error("Invalid event " + event + " for BindLoadedEvent!")
 
    Backbone.Marionette.View.prototype.BindFetchAndLoadedEvents = (fetchEvent, loadedEvent) ->
       @.BindFetchEvent(fetchEvent)
       @.BindLoadedEvent(loadedEvent)
+
+   Backbone.Marionette.View.prototype.RenderOnEvent = (event) ->
+
+      if "object" == typeof event
+         @.listenTo(event, "reset", => @.render())
+      else if "string" == typeof event
+         $(document).on(event, => @.render())
+      else
+         throw Error("Invalid event " + event + " for RenderOnEvent!")
 
    Backbone.Marionette.View.prototype.UpdateOnShow = ->
       # We want to update after we get the initial show event (incase we want to bind a loading view)
@@ -233,6 +246,12 @@ $ ->
          options or= {}
          Backbone.Marionette.CollectionView.prototype.constructor.apply(this, arguments)
 
+         if true == options.useCustomLoadingView? and true == options.useCustomLoadingView
+            @useCustomLoadingView = true
+         else
+            @useCustomLoadingView = false
+            @.SetLoadingView(new MobileCarousel.AMobileCarouselDefaultLoadingView)
+
          if null != @collection and (false == options.keepAddRemove? or false == options.keepAddRemove)
             @.stopListening(@collection, "add")
             @.stopListening(@collection, "remove")
@@ -255,10 +274,11 @@ $ ->
          @currentPage = 0;
          @pageSize = options['pageSize']
 
-         if (true == options.useDefaultLoadMoreView? and true == options.useDefaultLoadMoreView)
-            @useDefaultLoadMoreView = true
+         if (true == options.appendLoadMoreView? and true == options.appendLoadMoreView)
+            @appendLoadMoreView = true
+            @.SetLoadMoreView(new AMobileCarouselDefaultLoadMoreView)
          else
-            @useDefaultLoadMoreView = false
+            @appendLoadMoreView = false
 
       SetLoadMoreView: (loadMoreView) ->
          @loadMoreView = loadMoreView
@@ -296,7 +316,7 @@ $ ->
          @.triggerBeforeRender()
          @._renderChildren()
 
-         if true == @useDefaultLoadMoreView
+         if true == @appendLoadMoreView
             @$el.append(@loadMoreView.render().el)
          @.triggerRendered()
          @
@@ -318,11 +338,11 @@ $ ->
       serializeData: ->
          {message: @message}
 
-   window.MobileCarousel.AMobileCarouselLoadingView = class AMobileCarouselLoadingView extends MobileCarousel.AMobileCarouselItemView
-      template: _.template(($ "#loading-template").html())
+   window.MobileCarousel.AMobileCarouselDefaultLoadingView = class AMobileCarouselDefaultLoadingView extends MobileCarousel.AMobileCarouselItemView
+      template: _.template(($ "#default-loading-template").html())
 
-   window.MobileCarousel.AMobileCarouselLoadMoreView = class AMobileCarouselLoadMoreView extends MobileCarousel.AMobileCarouselItemView
-      template: _.template(($ "#load-more-template").html())
+   window.MobileCarousel.AMobileCarouselDefaultLoadMoreView = class AMobileCarouselDefaultLoadMoreView extends MobileCarousel.AMobileCarouselItemView
+      template: _.template(($ "#default-load-more-template").html())
 
       events:
          "click a#load-more": "NewPageRequested"
@@ -332,7 +352,13 @@ $ ->
 
    window.MobileCarousel.AMobileCarouselRegion = class AMobileCarouselRegion extends Backbone.Marionette.Region
 
+      ShowWithLoadMoreView: (view, loadMoreViewRegion) ->
+         Backbone.Marionette.Region.prototype.show.call(@, view)
+         if 'undefined' != typeof loadMoreViewRegion
+            loadMoreViewRegion.show(@.currentView.loadMoreView)
+
    window.MobileCarousel.AMobileCarouselLayout = class AMobileCarouselLayout extends Backbone.Marionette.Layout
+      regionType: MobileCarousel.AMobileCarouselRegion
 
    window.MobileCarousel.AItemModel = class AItemModel extends MobileCarousel.AMobileCarouselModel
       defaults:

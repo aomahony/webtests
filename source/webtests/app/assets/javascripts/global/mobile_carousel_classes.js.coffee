@@ -1,6 +1,6 @@
 $ ->
 
-   # This class is just a collection of classes extending from Backbone.Marionette classes
+   # This file is just a collection of classes extending from Backbone.Marionette classes
    # so we can implement custom functionality
 
    # There is also some direct extension of Marionette.View as some classes which extend from
@@ -47,7 +47,6 @@ $ ->
          throw Error("Invalid event " + event + " for BindFetchEvent!")
 
    Backbone.Marionette.View.prototype.BindLoadedEvent = (event) ->
-      
       loadedEventHandler = =>
          # We call this on the object regardless of the type of the view
          # So that the object can clean itself up
@@ -65,7 +64,6 @@ $ ->
       @.BindLoadedEvent(loadedEvent)
 
    Backbone.Marionette.View.prototype.RenderOnEvent = (event) ->
-
       if "object" == typeof event
          @.listenTo(event, "reset", => @.render())
       else if "string" == typeof event
@@ -93,7 +91,6 @@ $ ->
    window.MobileCarousel or= {}
 
    window.MobileCarousel.AMobileCarouselCollection = class AMobileCarouselCollection extends Backbone.Collection
-
       initialize: ->
          @name = "_collection"
          @previousModels = []
@@ -252,6 +249,10 @@ $ ->
             @useCustomLoadingView = false
             @.SetLoadingView(new MobileCarousel.AMobileCarouselDefaultLoadingView)
 
+         # We only use the "reset" event for most collections.  The default
+         # Marionette handler listens to "add" and "remove" and redraws,
+         # while we don't want to do that as it redraws everything twice
+
          if null != @collection and (false == options.keepAddRemove? or false == options.keepAddRemove)
             @.stopListening(@collection, "add")
             @.stopListening(@collection, "remove")
@@ -274,9 +275,14 @@ $ ->
          @currentPage = 0;
          @pageSize = options['pageSize']
 
-         if (true == options.appendLoadMoreView? and true == options.appendLoadMoreView)
-            @appendLoadMoreView = true
+         if true == options.useCustomLoadMoreView? and true == options.useCustomLoadMoreView
+            @useCustomLoadMoreView = true
+         else
+            @useCustomLoadMoreView = false
             @.SetLoadMoreView(new AMobileCarouselDefaultLoadMoreView)
+
+         if true == options.appendLoadMoreView? and true == options.appendLoadMoreView
+            @appendLoadMoreView = true
          else
             @appendLoadMoreView = false
 
@@ -321,8 +327,17 @@ $ ->
          @.triggerRendered()
          @
 
-   window.MobileCarousel.AMobileCarouselErrorView = class AMobileCarouselErrorView extends MobileCarousel.AMobileCarouselItemView
-      template: _.template(($ "#error-template").html())
+   window.MobileCarousel.AMobileCarouselRegion = class AMobileCarouselRegion extends Backbone.Marionette.Region
+      ShowWithLoadMoreView: (view, loadMoreViewRegion) ->
+         Backbone.Marionette.Region.prototype.show.call(@, view)
+         if 'undefined' != typeof loadMoreViewRegion
+            loadMoreViewRegion.show(@.currentView.loadMoreView)
+
+   window.MobileCarousel.AMobileCarouselLayout = class AMobileCarouselLayout extends Backbone.Marionette.Layout
+      regionType: MobileCarousel.AMobileCarouselRegion
+
+   window.MobileCarousel.AMobileCarouselDefaultErrorView = class AMobileCarouselDefaultErrorView extends MobileCarousel.AMobileCarouselItemView
+      template: _.template(($ "#default-error-template").html())
 
       initialize: (options) ->
          @message = ""
@@ -349,16 +364,6 @@ $ ->
 
       NewPageRequested: ->
          @.trigger("new_page_requested")
-
-   window.MobileCarousel.AMobileCarouselRegion = class AMobileCarouselRegion extends Backbone.Marionette.Region
-
-      ShowWithLoadMoreView: (view, loadMoreViewRegion) ->
-         Backbone.Marionette.Region.prototype.show.call(@, view)
-         if 'undefined' != typeof loadMoreViewRegion
-            loadMoreViewRegion.show(@.currentView.loadMoreView)
-
-   window.MobileCarousel.AMobileCarouselLayout = class AMobileCarouselLayout extends Backbone.Marionette.Layout
-      regionType: MobileCarousel.AMobileCarouselRegion
 
    window.MobileCarousel.AItemModel = class AItemModel extends MobileCarousel.AMobileCarouselModel
       defaults:

@@ -117,4 +117,4 @@ $ ->
 
       onShowCalled: ->
          @.cart_count.show(new ACartCountView)
-         @.error.show(new MobileCarousel.AMobileCarouselErrorView({errorEvent: "cart:error", successEvent: "cart:reset"}))    
+         @.error.show(new MobileCarousel.AMobileCarouselDefaultErrorView({errorEvent: "cart:error", successEvent: "cart:reset"}))    

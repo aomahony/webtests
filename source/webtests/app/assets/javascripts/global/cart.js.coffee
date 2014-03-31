@@ -18,8 +18,6 @@ $ ->
       initialize: ->
          @.SetCollection(Cart.ACartModelSingleton.Track())
 
-         @.SetLoadMoreView(new MobileCarousel.AMobileCarouselDefaultLoadMoreView)
-
          @.BindCollectionToFetchAndLoadedEvents()
          @.UpdateOnShow()
 

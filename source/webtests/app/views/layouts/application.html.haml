@@ -25,6 +25,9 @@
       %script#cart-item-template{:type => "text/template"}
          %a.cart-item {%- name %} - {%- itemType %} - {%- guid %}
 
+      %script#item-image-template{:type => "text/template"}
+         %img{:src => "{%- imgSrc %}"}
+
       %script#cart-items-template{:type => "text/template"}
          %div.cart_items_list#cart-items-list
          %div.load_more_cart_items#load-more-cart-items
@@ -41,6 +44,7 @@
       %script#cart-page-template{:type => "text/template"}
          %div.items#items
          %div.cart_items#cart-items
+         %div.cart_items_images#cart-items-images
 
       %script#home-page-template{:type => "text/template"}
          This is the home page!         

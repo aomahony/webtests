@@ -406,3 +406,7 @@ $ ->
          itemType: ""
          guid: ""
          name: ""
+
+   window.MobileCarousel.AItemImageModel = class AItemImageModel extends MobileCarousel.AMobileCarouselModel
+      defaults:
+         src: ""

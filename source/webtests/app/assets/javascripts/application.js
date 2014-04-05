@@ -15,5 +15,6 @@
 //= require underscore-full
 //= require backbone-full
 //= require backbone.marionette
+//= require dragend
 //= require_tree ./global
 //= require mobilecarousel

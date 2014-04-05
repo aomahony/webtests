@@ -19,6 +19,9 @@ Webtests::Application.configure do
 
    config.assets.compress = false
 
+   config.assets.precompile += %w(scripts.min.js)
+
+
    # Debug mode disables concatenation and preprocessing of assets.
    # This option may cause significant delays in view rendering with a large
    # number of complex assets.

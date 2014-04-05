@@ -53,6 +53,30 @@ $ ->
          @.BindCollectionToFetchAndLoadedEvents()
          @.UpdateOnShow()
 
+   class AItemImageCollection extends MobileCarousel.AMobileCarouselCollection
+      model: MobileCarousel.AItemImageModel
+
+   class AItemImageView extends MobileCarousel.AMobileCarouselItemView
+      template: _.template(($ "#item-image-template").html())
+      tagName: "li"
+
+      serializeData: ->
+         {imgSrc: @model.get('src')}
+
+   class AItemsImageView extends MobileCarousel.AMobileCarouselCollectionView
+      itemView: AItemImageView
+      tagName: "ul"
+
+      initialize: (opts) ->
+         opts or= {}
+         opts['images'] or= []
+         @.SetCollection(new AItemImageCollection(opts['images']))
+
+         @.UpdateOnShow()
+
+      Update: ->
+         @collection.reset(@collection.models)
+
    window.Views or= {}
 
    window.Views.ACartPageView = class ACartPageView extends MobileCarousel.AMobileCarouselLayout
@@ -64,7 +88,11 @@ $ ->
       initialize: ->
          @.addRegion("items", "div#items")
          @.addRegion("cart_items", "div#cart-items")
+         @.addRegion("cart_items_images", "div#cart-items-images")
+
+         @.listenTo(@.cart_items_images, "show", => console.log("CART ITEMS IMAGES SHOWN!"))
 
       onShowCalled: ->
          @.items.show(new AItemsView)  
          @.cart_items.show(new ACartItemsView)
+         @.cart_items_images.show(new AItemsImageView({images: [{src: "http://www.babybedding.com/images/default/homepage_aprilsavings.jpg"}]}))
